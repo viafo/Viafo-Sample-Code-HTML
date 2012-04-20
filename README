@@ -1,0 +1,8 @@
+Viafo Gateway sample jQuery code
+
+test.html - please edit and enter your Client ID and Client Secret to this file. You will then be able to exercise your the Viafo API from the app.
+
+example/twitter_no_viafo.html - this is a simple twitter search app with no Viafo functionality.
+
+examples/twitter_with_viafo.html - this is the same twitter search app, with limited twitter functionality added. Note for this app, we're assuming that Twitter is always available.
+

@@ -1,0 +1,54 @@
+<!DOCTYPE html> 
+<html> 
+    <head> 
+    <title>Viafo Gateway Test</title> 
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
+    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
+    
+    <script src="./js/service.viafo.js"></script>
+    <script src="test.js"></script>
+    <script>
+//
+// IMPORTANT: Uncomment and Change these values to match your Viafo settings
+//
+//var VIAFO_SETTINGS = { 
+//    'ENDPOINT' : 'https://vsg-live.appspot.com/client/1/', 
+//    
+//    'CLIENT_ID' : 'YOUR_CLIENT_ID', 
+//    'CLIENT_SECRET' : 'YOUR_CLIENT_SECRET',
+//};
+    </script>
+    </head>
+<body> 
+
+<div id="start" data-role="page">
+
+    <div data-role="header" data-position="fixed">
+        <h1>Viafo Gateway Test</h1>
+    </div><!-- /header -->
+
+    <div data-role="content">
+        <button id="call_init" data-role="button" data-mini="true" data-inline="true" data-theme="b">Initialize</button> 
+        <button id="get_services" data-role="button" data-mini="true" data-inline="true" data-theme="b">Refresh Services</button>
+        <button id="clear_token" data-role="button" data-mini="true" data-inline="true" data-theme="e">Clear Access Token</button>
+        <br/>
+    	Access Token: 
+    	<input type="text" id="access_token" disabled="true"></input>
+        
+        <div id="services" data-role="collapsible-set">
+    	</div>
+    </div><!-- /content -->
+
+</div><!-- /page -->
+
+<div id="response" data-role="page" data-add-back-btn="true">
+	<div data-role="header" data-position="fixed">
+		<h1>Response</h1>
+	</div>
+	<div data-role="content"></div>
+</div>
+
+</body>
+</html>
