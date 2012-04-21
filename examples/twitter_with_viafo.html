@@ -8,125 +8,159 @@
     <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
     
     <style>
-    	/* Override some jQuery Mobile defaults */
-    	
-    	#tweet-list li a {
-    		white-space: normal;
-    		min-height: 48px;
-    		padding-left: 60px;
-    	}
-    	
-    	#tweet-list li img {
-    		top: inherit;
-    	}
-    	
-    	.tweet_text {
-    		font-weight: normal;
-    	}
+        /* Override some jQuery Mobile defaults */
+        
+        #tweet-list li a {
+            white-space: normal;
+            min-height: 48px;
+            padding-left: 60px;
+        }
+        
+        #tweet-list li img {
+            top: inherit;
+        }
+        
+        .tweet_text {
+            font-weight: normal;
+        }
+        
+        .tweet_img {
+            float: left; 
+            margin-right: 12px;
+        }
     </style>
     
     <script src="../js/service.viafo.js"></script>
     <script src="./service.twitter.js"></script>
     <script src="./view.twitter.js"></script>
     <script>
-		/*global $, SEARCH_RESULT, ViafoService, confirm */
-		
-		//
-		// Change these values to match your Viafo settings
-		//
-		var VIAFO_SETTINGS = { 
-		    'ENDPOINT' : 'https://vsg-live.appspot.com/client/1/', 
-		    
-		    'CLIENT_ID' : '9RSbot4xBsPLh83p0lYhMQemK51QVcLx', 
-		    'CLIENT_SECRET' : 'BYXbkPGgKdZsO1YfVQ6BsuBnPyFE9mIh'
-		};
-		
-		
-		$(document).on('pageinit', function () {
-			
-			var CURRENT_TWEET = null;
-			
-			ViafoService.Init();
-			
-			$('#tweet-list').on('click', 'li a', function (event) {
-				var me = $(this),
-					id_str = me.attr('id'),
-					item, i;
-				
-				for (i in SEARCH_RESULT.results) {
-					if (SEARCH_RESULT.results.hasOwnProperty(i)) {
-						item = SEARCH_RESULT.results[i];
-						if (item.id_str == id_str) {
-							break;
-						}
-						item = null;
-					}
-				}
-				
-				CURRENT_TWEET = item;
-				
-				// Allow propogation
-				return true;
-			});
-			
-			$('#reply').on('click', function (event) {
-				if (CURRENT_TWEET) {
-					ViafoService.CallTwitterReply(CURRENT_TWEET.id_str, 'Reply text', null, null, null, 
-						function () {
-							alert("Tweet sent");
-						},
-						function () {
-							alert("Tweet failed");
-						},
-						function (service, callback) {
-							if (confirm("You need to sign into " + service.display_name + " first, do it now?")) {
-								callback();
-							}
-						});				
-				}
-				event.stopPropagation();
-				return false;
-			});
-						
-			$('#retweet').on('click', function (event) {
-				if (CURRENT_TWEET) {
-					ViafoService.CallTwitterRetweet(CURRENT_TWEET.id_str,
-						function () {
-							alert("Retweeted ok");
-						},
-						function () {
-							alert("Retweet failed");
-						},
-						function (service, callback) {
-							if (confirm("You need to sign into " + service.display_name + " first, do it now?")) {
-								callback();
-							}
-						});				
-				}
-				event.stopPropagation();
-				return false;
-			});					
-				
-			$('#follow').on('click', function (event) {
-				if (CURRENT_TWEET) {
-					ViafoService.CallTwitterFollow(CURRENT_TWEET.from_user,
-						function () {
-							alert("Follow ok");
-						},
-						function () {
-							alert("Follow failed");
-						},
-						function (service, callback) {
-							if (confirm("You need to sign into " + service.display_name + " first, do it now?")) {
-								callback();
-							}
-						});				
-				}
-				event.stopPropagation();
-				return false;
-			});
-		});
-		
+/*global $, SEARCH_RESULT, ViafoService, confirm */
+
+//
+// Change these values to match your Viafo settings
+//
+var VIAFO_SETTINGS = { 
+    'ENDPOINT' : 'https://vsg-live.appspot.com/client/1/', 
+    
+    'CLIENT_ID' : '9RSbot4xBsPLh83p0lYhMQemK51QVcLx', 
+    'CLIENT_SECRET' : 'BYXbkPGgKdZsO1YfVQ6BsuBnPyFE9mIh'
+};
+
+$(document).ready(function() {
+    ViafoService.Init();
+});
+
+var UiHelpers = UiHelpers || {
+    
+    AskUserToConfirmCb: function (service, callback) {
+        if (confirm("You need to sign into " + service.display_name + " first, do it now?")) {
+            callback();
+        }
+    },
+    
+    SuccessHandlerCb: function (data, result, xhr) {
+        $.mobile.hidePageLoadingMsg();
+        alert("Success: " + data.message);
+    },
+    
+    FailureHandlerCb: function (xhr, result, msg) {
+        $.mobile.hidePageLoadingMsg();
+        if (xhr.responseText) {
+            var data = $.parseJSON(xhr.responseText);
+            alert("Failure: " + data.message);
+        } else {
+            alert("Failed");
+        }
+    }
+};
+
+$(document).on('pageinit', '#tweet', function () {
+       
+    $('#reply').on('click', function (event) {
+        var $form,
+            data = $('#options').data();
+            
+        if (data) {
+            $form = $('#compose-form');
+            $form.find('input[name=service_name]').val('twitter');
+            $form.find('input[name=action]').val('reply');
+            $form.find('input[name=param_id]').val(data.id_str);
+            $form.find('textarea[name=text]').val('@' + data.from_user + ' ');
+        }
+        
+        return true;
+    });
+    
+    $('#retweet').on('click', function (event) {
+        var data = $('#options').data();
+        if (data) {
+            $.mobile.showPageLoadingMsg("b", "Retweeting...");
+            
+            ViafoService.CallTwitterRetweet(data.id_str,
+                UiHelpers.SuccessHandlerCb,
+                UiHelpers.FailureHandlerCb,
+                UiHelpers.AskUserToConfirmCb);
+        }
+        event.stopPropagation();
+        return false;
+    });                    
+    
+    $('#follow').on('click', function (event) {
+        var data = $('#options').data();
+        if (data) {
+            $.mobile.showPageLoadingMsg("b", "Following...");
+            
+            ViafoService.CallTwitterFollow(data.from_user,
+                UiHelpers.SuccessHandlerCb,
+                UiHelpers.FailureHandlerCb,
+                UiHelpers.AskUserToConfirmCb);
+        }
+        event.stopPropagation();
+        return false;
+    });
+
+});
+
+$(document).on('pageinit', '#compose', function () {
+    
+    function ResetForm() {
+        var $form = $('#compose-form');
+        $form.find('input[name=service_name]').val('twitter');
+        $form.find('input[name=action]').val('status');
+        $form.find('input[name=param_id]').val('');
+        $form.find('textarea[name=text]').val('');
+    }
+    
+    $('#compose-form').submit(function () {
+        var params = {}, 
+            service_name = $(this).find('input[name=service_name]').val(),
+            action = $(this).find('input[name=action]').val(),
+            id = $(this).find('input[name=param_id]').val(),
+            text = $(this).find('textarea[name=text]').val();
+            
+        if (id) {
+            params.id = id;
+        }
+        if (text) {
+            params.text = text;
+        }
+        
+        $.mobile.showPageLoadingMsg("b", "Posting...");
+        ViafoService.CallAction(service_name, action, params, 
+            function (data, result, xhr) {
+                UiHelpers.SuccessHandlerCb(data, result, xhr);
+                ResetForm();
+				history.back();
+            }, 
+            function (xhr, result, msg) {
+                UiHelpers.FailureHandlerCb(xhr, result, msg);
+                ResetForm();
+				history.back();
+            },
+            UiHelpers.AskUserToConfirmCb);
+        return false;
+    });
+});
     </script>
     </head>
 <body> 
@@ -134,36 +168,65 @@
 <div id="start" data-role="page">
 
     <div data-role="header" data-position="fixed">
+        <a href="#settings" data-icon="gear">Settings</a>
         <h1>Twitter Search</h1>
+        <a href="#compose" data-icon="plus" data-theme="b">Compose</a>
     </div><!-- /header -->
     <div data-role="content">
-    	<div>
-	    	<form id="search-form">
-	    		<fieldset class="ui-hide-label">
-					<label for="search-box">Search:</label>
-		        	<input type="search" name="search" id="search-box" value="" data-mini="true"/>
-		        </fieldset>
-		        <button type="submit" data-theme="a" data-inline="true" data-mini="true">Search</button>
-	        </form>
+        <div>
+            <form id="search-form">
+                <fieldset class="ui-hide-label">
+                    <label for="search-box">Search:</label>
+                    <input type="search" name="search" id="search-box" value="" data-mini="true"/>
+                </fieldset>
+                <button type="submit" data-theme="a" data-inline="true" data-mini="true">Search</button>
+            </form>
         </div>
         <div>
-			<ul id="tweet-list" data-role="listview" data-inset="true"></ul>
-		</div>
+            <ul id="tweet-list" data-role="listview" data-inset="true"></ul>
+        </div>
     </div><!-- /content -->
 
 </div><!-- /page -->
 
-
-<div id="share" data-role="page">
-    <div data-role="header">
-        <h1>Share Options</h1>
+<div id="tweet" data-role="page">
+    <div data-role="header" data-position="fixed">
+        <a href="#start" data-rel="back" data-icon="back">Back</a>
+        <h1>Tweet Details</h1>
     </div>
     <div data-role="content">
-		<ul id="share-list" data-role="listview">
-			<li id="reply">Reply</li>
-			<li id="retweet">Retweet</li>
-			<li id="follow">Follow User</li>
-		</ul>
+        <h2><img id="profile_image_url" class="tweet_img" src=""/>@<span id="from_user"></span> / <span id="from_user_name"></span></h2>
+        <blockquote id="text"></blockquote>
+        <dl>
+            <dt>Date:</dt> 
+            <dd id="created_at"></dd>
+            <dt>Source:</dt> 
+            <dd id="source"></dd>
+        </dl>
+        <div id="options">
+            <a id="reply" href="#compose" data-role="button">Reply</a>
+            <button id="retweet">Retweet</button>
+            <button id="follow">Follow</button>
+        </div>
+    </div>
+</div>
+
+<div id="compose" data-role="page">
+    <div data-role="header" data-position="fixed">
+        <a href="#start" data-rel="back" data-icon="back">Back</a>
+        <h1>Compose</h1>
+    </div>
+    <div data-role="content">
+        <form id="compose-form">
+            <input type="hidden" name="service_name" value="twitter" />
+            <input type="hidden" name="action" value="reply" />
+            <input type="hidden" name="param_id" value="" />
+            <div data-role="fieldcontain">
+                <label for="compose-text">Message:</label>
+                <textarea cols="40" rows="8" name="text" id="compose-text"></textarea>
+            </div>
+            <button type="submit" data-theme="b">Send</button>
+        </form>
     </div>
 </div>
 

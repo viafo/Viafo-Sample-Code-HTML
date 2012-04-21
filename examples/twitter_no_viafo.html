@@ -8,21 +8,26 @@
     <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
     
     <style>
-    	/* Override some jQuery Mobile defaults */
-    	
-    	#tweet-list li a {
-    		white-space: normal;
-    		min-height: 48px;
-    		padding-left: 60px;
-    	}
-    	
-    	#tweet-list li img {
-    		top: inherit;
-    	}
-    	
-    	.tweet_text {
-    		font-weight: normal;
-    	}
+        /* Override some jQuery Mobile defaults */
+        
+        #tweet-list li a {
+            white-space: normal;
+            min-height: 48px;
+            padding-left: 60px;
+        }
+        
+        #tweet-list li img {
+            top: inherit;
+        }
+        
+        .tweet_text {
+            font-weight: normal;
+        }
+        
+        .tweet_img {
+            float: left; 
+            margin-right: 12px;
+        }
     </style>
     
     <script src="./service.twitter.js"></script>
@@ -33,35 +38,46 @@
 <div id="start" data-role="page">
 
     <div data-role="header" data-position="fixed">
+        <!-- <a href="#settings" data-icon="gear">Settings</a> -->
         <h1>Twitter Search</h1>
+        <!-- <a href="#compose" data-icon="plus" data-theme="b">Compose</a> -->
     </div><!-- /header -->
     <div data-role="content">
-    	<div>
-	    	<form id="search-form">
-	    		<fieldset class="ui-hide-label">
-					<label for="search-box">Search:</label>
-		        	<input type="search" name="search" id="search-box" value="" data-mini="true"/>
-		        </fieldset>
-		        <button type="submit" data-theme="a" data-inline="true" data-mini="true">Search</button>
-	        </form>
+        <div>
+            <form id="search-form">
+                <fieldset class="ui-hide-label">
+                    <label for="search-box">Search:</label>
+                    <input type="search" name="search" id="search-box" value="" data-mini="true"/>
+                </fieldset>
+                <button type="submit" data-theme="a" data-inline="true" data-mini="true">Search</button>
+            </form>
         </div>
         <div>
-			<ul id="tweet-list" data-role="listview" data-inset="true"></ul>
-		</div>
+            <ul id="tweet-list" data-role="listview" data-inset="true"></ul>
+        </div>
     </div><!-- /content -->
 
 </div><!-- /page -->
 
-<div id="share" data-role="page">
-    <div data-role="header">
-        <h1>Share Options</h1>
+<div id="tweet" data-role="page">
+    <div data-role="header" data-position="fixed">
+        <a href="#start" data-rel="back" data-icon="back">Back</a>
+        <h1>Tweet Details</h1>
     </div>
     <div data-role="content">
-		<ul id="share-list" data-role="listview">
-			<li>Reply</li>
-			<li>Retweet</li>
-			<li>Follow User</li>
-		</ul>
+        <h2><img id="profile_image_url" class="tweet_img" src=""/>@<span id="from_user"></span> / <span id="from_user_name"></span></h2>
+        <blockquote id="text"></blockquote>
+        <dl>
+            <dt>Date:</dt> 
+            <dd id="created_at"></dd>
+            <dt>Source:</dt> 
+            <dd id="source"></dd>
+        </dl>
+        <!-- <div id="options">
+            <button id="reply">Reply</button>
+            <button id="retweet">Retweet</button>
+            <button id="follow">Follow</button>
+        </div> -->
     </div>
 </div>
 

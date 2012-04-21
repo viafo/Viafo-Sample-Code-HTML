@@ -177,20 +177,15 @@ var ViafoService = ViafoService || (function () {
                 data, 
                 function (data, result, xhr) {
                     var i, service, services = [];
-                    for (i in data.authenticated) {
-                        if (data.authenticated.hasOwnProperty(i)) {
-                            service = data.authenticated[i];
+                    
+                    $.each(data.authenticated, function (i, service) {
                             service.authenticated = true;
                             services.push(service);
-                        }
-                    }
-                    for (i in data.available) {
-                        if (data.available.hasOwnProperty(i)) {
-                            service = data.available[i];
+                        });
+                    $.each(data.available, function (i, service) {
                             service.authenticated = false;
                             services.push(service);
-                        }
-                    }
+                        });
                     
                     me.VIAFO_SERVICES = services;
                     me.VIAFO_SERVICES_REFRESH = false;
@@ -228,18 +223,15 @@ var ViafoService = ViafoService || (function () {
         },
         
         GetService: function (service_name) {
-            var i, service = null;
+            var i, s, service = null;
             
             if (me.VIAFO_SERVICES) {
-                for (i in me.VIAFO_SERVICES) {
-                    if (me.VIAFO_SERVICES.hasOwnProperty(i)) {
-                        service = me.VIAFO_SERVICES[i];
-                        if (service.name === service_name) {
-                            break;
-                        }
-                        service = null;
+                $.each(me.VIAFO_SERVICES, function (index, value) { 
+                    if (value.name === service_name) {
+                        service = value;
+                        return true;
                     }
-                }
+                });
             }
             
             return service;  
