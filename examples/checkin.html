@@ -1,0 +1,122 @@
+<!DOCTYPE html> 
+<html> 
+    <head> 
+    <title>Check-In Example</title> 
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
+    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
+    
+    <script src="../js/service.viafo.js"></script>
+    <script>
+/*global $, ViafoService, confirm */
+
+//
+// Change these values to match your Viafo settings
+//
+var VIAFO_SETTINGS = { 
+    'ENDPOINT' : 'https://vsg-live.appspot.com/client/1/', 
+    
+    'CLIENT_ID' : '9RSbot4xBsPLh83p0lYhMQemK51QVcLx', 
+    'CLIENT_SECRET' : 'BYXbkPGgKdZsO1YfVQ6BsuBnPyFE9mIh',
+    
+    // Define a custom scope
+    'SCOPES' : {
+    	'facebook' : 'publish_checkins'
+    }
+};
+
+$(document).ready(function() {
+    ViafoService.Init();
+});
+
+$(document).on('com.viafo.got_services', function () {
+	
+	// For this demo, we're using hard-coded lat/lng:
+	var lat = 47.6205,
+        lng = -122.3493,
+        
+        // We're also using hard-coded location ids for each service
+        // These were determined by querying the relevant APIs in the developer sections
+        // of the respective websites
+        // These are the IDs for the Seattle Space Needle
+        LOCATION_IDS = {
+        	'foursquare' : '416dc180f964a5209b1d1fe3',
+        	'facebook' : '88603851976'
+        };
+	
+	function AskUserToConfirmCb(service, callback) {
+        if (confirm("You need to sign into " + service.display_name + " first, do it now?")) {
+            callback();
+        }
+    }
+    
+    function SuccessHandlerCb(data, result, xhr) {
+        $.mobile.hidePageLoadingMsg();
+        alert("Success");
+        console.log(data);
+    }
+    
+    function FailureHandlerCb(xhr, result, msg) {
+        $.mobile.hidePageLoadingMsg();
+        if (xhr.responseText) {
+            alert("Failure - "+ xhr.responseText);
+        } else {
+            alert("Failed");
+        }
+    }
+	
+	// Dynamically adding the buttons based upon what supports 'checkin'
+	var checkInServs = ViafoService.GetServicesByVerb('checkin'), html = '';
+	
+	$.each(checkInServs, function (i, val) {
+		html += '<a href="#" id="but_' + val.name + '" data-role="button">Check-in with ' + val.display_name + '</a>';
+	});
+	
+	$('#buttons').html(html);
+	$('#buttons').trigger('create');
+	
+	// Now add a click handler for the buttons
+	$.each(checkInServs, function (i, val) {
+		$('#but_' + val.name).data(val);
+        $('#but_' + val.name).click(function() {
+        	var service = $(this).data();
+        	// This causes the check-in to occur (if you're signed in)
+        	ViafoService.CallCheckin(service.name,
+        	   LOCATION_IDS[service.name], 
+        	   $('textarea').val(), 
+        	   lat, 
+        	   lng, 
+        	   SuccessHandlerCb, 
+        	   FailureHandlerCb, 
+        	   AskUserToConfirmCb)
+        });
+    });
+});
+
+    </script>
+    </head>
+<body> 
+
+<div id="start" data-role="page">
+
+    <div data-role="header" data-position="fixed">
+        <h1>Check-In Demo</h1>
+    </div><!-- /header -->
+    <div data-role="content">
+        <div>
+            Check into the Space Needle?
+        </div>
+        <div>
+        	Enter a message here:
+        </div>
+        <textarea></textarea>
+        <div id="buttons">
+            
+        </div>
+    </div><!-- /content -->
+
+</div><!-- /page -->
+
+</body>
+</html>

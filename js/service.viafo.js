@@ -47,6 +47,22 @@ var ViafoService = ViafoService || (function () {
             error_cb);
     }
     
+    function callProxy_i(service_name, domain, path, method, params, success_cb, error_cb) {
+        params = params || {};
+        params.access_token = VIAFO_ACCESS_TOKEN;
+        params._path = path;
+        
+        $.ajax({
+            type : 'POST',
+            url : VIAFO_SETTINGS.ENDPOINT + 'proxy/' + service_name + '/' + domain + '/' + method + '.json',
+            data : params,
+            dataType : 'json'
+        })
+        .done(eventNameToFunc(success_cb))
+        .fail(eventNameToFunc(error_cb));
+        //.always(function() {console.log(arguments);});
+    }
+    
     function reportError(msg) {
         console.error(msg);
         alert(msg);
@@ -237,7 +253,23 @@ var ViafoService = ViafoService || (function () {
             return service;  
         },
         
+        GetServicesByVerb: function (verb) {
+            var i, s, services = [];
+            
+            if (me.VIAFO_SERVICES) {
+                $.each(me.VIAFO_SERVICES, function (index, value) { 
+                    if (typeof value.services[verb] !== 'undefined') {
+                        services.push(value);
+                    }
+                });
+            }
+            
+            return services;
+        },
+        
         CheckForAuth : function (service_name, success_cb, error_cb, askUserForAuth_cb) {
+            
+            service_name = service_name.toLowerCase();
             
             if (me.VIAFO_SERVICES_REFRESH) {
                 me.CallGetServices(function (/*data, result, xhr*/) {
@@ -257,6 +289,13 @@ var ViafoService = ViafoService || (function () {
                     askUserForAuth_cb = eventNameToFunc(askUserForAuth_cb);
                     askUserForAuth_cb(service, function () {
                             var url = service.url;
+                                
+                            if (typeof VIAFO_SETTINGS.SCOPES !== 'undefined' &&
+                                typeof VIAFO_SETTINGS.SCOPES[service.name] !== 'undefined') {
+                            
+                                url += '&scope=' + VIAFO_SETTINGS.SCOPES[service.name];
+                            }
+                            
                             VIAFO_SETTINGS.OpenBrowserWindow(url);
                             me.VIAFO_SERVICES_REFRESH = true;
                         });
@@ -285,6 +324,13 @@ var ViafoService = ViafoService || (function () {
                         askUserForAuth_cb = eventNameToFunc(askUserForAuth_cb);
                         askUserForAuth_cb(service, function () {
                                 var url = service.url;
+                                
+                                if (typeof VIAFO_SETTINGS.SCOPES !== 'undefined' &&
+                                        typeof VIAFO_SETTINGS.SCOPES[service.name] !== 'undefined') {
+                                
+                                    url += '&scope=' + VIAFO_SETTINGS.SCOPES[service.name];
+                                }
+                                
                                 VIAFO_SETTINGS.OpenBrowserWindow(url);
                                 me.VIAFO_SERVICES_REFRESH = true;
                             });
@@ -312,6 +358,14 @@ var ViafoService = ViafoService || (function () {
         CallAction : function (service_name, verb, data, success_cb, error_cb, askUserForAuth_cb) {
             me.CheckForAuth(service_name, function () {
                 callAction_i(service_name, verb, data, success_cb, error_cb);
+            },
+            error_cb,
+            askUserForAuth_cb);
+        },
+        
+        CallProxy : function (service_name, domain, path, method, params, success_cb, error_cb, askUserForAuth_cb) {
+            me.CheckForAuth(service_name, function () {
+                callProxy_i(service_name, domain, path, method, params, success_cb, error_cb);
             },
             error_cb,
             askUserForAuth_cb);
