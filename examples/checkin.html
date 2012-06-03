@@ -22,7 +22,7 @@ var VIAFO_SETTINGS = {
     
     // Define a custom scope
     'SCOPES' : {
-    	'facebook' : 'publish_checkins'
+    	'facebook' : 'offline_access,publish_checkins'
     }
 };
 
@@ -90,6 +90,8 @@ $(document).on('com.viafo.got_services', function () {
         	   SuccessHandlerCb, 
         	   FailureHandlerCb, 
         	   AskUserToConfirmCb)
+        	   
+            $.mobile.showPageLoadingMsg();
         });
     });
 });
