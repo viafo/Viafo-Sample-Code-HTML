@@ -300,7 +300,9 @@ var ViafoService = ViafoService || (function () {
                             me.VIAFO_SERVICES_REFRESH = true;
                         });
                 }
-            }
+            } else {
+				error_cb(null, "Error", "No such service: " + service_name);
+			}
         },
         
         Authenticate : function (service_name, signIn, success_cb, error_cb, askUserForAuth_cb) {
@@ -412,8 +414,8 @@ var ViafoService = ViafoService || (function () {
         },
         
         // Generic share function
-        CallShare : function (service_name, text, link, lat, lng, success_cb, error_cb, askUserForAuth_cb) {
-            var params = {};
+        CallShare : function (service_name, text, link, lat, lng, success_cb, error_cb, askUserForAuth_cb, params) {
+            var params = params || {};
             
             if (text) {
                 params.text = text;
