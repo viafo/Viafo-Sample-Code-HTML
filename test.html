@@ -18,6 +18,17 @@
 //    
 //    'CLIENT_ID' : 'YOUR_CLIENT_ID', 
 //    'CLIENT_SECRET' : 'YOUR_CLIENT_SECRET',
+//     
+//    // Define a custom scope
+//    'SCOPES' : {
+//        // for Facebook we require:
+//        // - offline_access - so the user only needs to authenticate once (always use this)
+//        // - publish_stream - for share / status updates (optional)
+//        // - publish_checkins - for checkin functionality (optional)
+//        // - publish_actions - for like functionality (optional)
+//        // If you don't specify anything here, we use "offline_access,publish_stream"
+//        'facebook' : 'offline_access,publish_stream,publish_checkins,publish_actions'
+//    }
 //};
     </script>
     </head>
