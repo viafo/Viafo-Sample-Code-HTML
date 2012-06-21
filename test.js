@@ -52,7 +52,7 @@ $(document).on('com.viafo.ready', function () {
 // to sign in and exercise any of the available verbs we claim that service supports
 //
 $(document).on('com.viafo.got_services', function (event, data) {
-    var i, service, verb, params, param, value, html = '', $services = $('#services'),
+    var i, service, verb, params, param, value, html = '', scope='', $services = $('#services'),
         VIAFO_AUTH_BASE = VIAFO_SETTINGS.ENDPOINT.split('client').join('auth'),
         access_token = ViafoService.GetAccessToken();
     $('#access_token').val(access_token);
@@ -66,7 +66,16 @@ $(document).on('com.viafo.got_services', function (event, data) {
             html +=     '<p>';
             html +=         'Auth Status: ' + (service.authenticated ? ' Authenticated ' : ' Not authenticated ');
             html +=         '<a href="' + VIAFO_AUTH_BASE + service.name + '?access_token=' + access_token + '&deauth=true" data-role="button" data-inline="true" data-mini="true">Unauth</a>';
-            html +=         '<a href="' + VIAFO_AUTH_BASE + service.name + '?access_token=' + access_token + '" data-role="button" data-theme="b" data-inline="true" data-mini="true">Authenticate</a>';
+            
+            // You can specify a custom scope, depending on your app's needs
+            if (typeof VIAFO_SETTINGS.SCOPES !== 'undefined' &&
+                typeof VIAFO_SETTINGS.SCOPES[service.name] !== 'undefined') {
+               scope = '&scope=' + VIAFO_SETTINGS.SCOPES[service.name];
+            } else {
+                scope = ''
+            }
+            
+            html +=         '<a href="' + VIAFO_AUTH_BASE + service.name + '?access_token=' + access_token + scope + '" data-role="button" data-theme="b" data-inline="true" data-mini="true">Authenticate</a>';
             html +=         '<div data-role="collapsible-set">';
                     
             for (verb in service.services) {
