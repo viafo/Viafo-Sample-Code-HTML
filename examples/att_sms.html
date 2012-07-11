@@ -1,0 +1,149 @@
+<!DOCTYPE html> 
+<html> 
+    <head> 
+    <title>AT&amp;T SMS Example</title> 
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.css" />
+    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.min.js"></script>
+    
+    <script src="../js/service.viafo.js"></script>
+    <script>
+/*global $, ViafoService, confirm */
+
+//
+// Change these values to match your Viafo settings
+//
+var VIAFO_SETTINGS = { 
+    'ENDPOINT' : 'https://vsg-live.appspot.com/client/1/',
+
+
+    'CLIENT_ID' : '9RSbot4xBsPLh83p0lYhMQemK51QVcLx', 
+    'CLIENT_SECRET' : 'BYXbkPGgKdZsO1YfVQ6BsuBnPyFE9mIh',
+    
+    // Define a custom scope
+    'SCOPES' : {
+       // AT&T scopes: SMS, MMS, and "Messaging On Behalf Of"
+       'att' : 'SMS,MMS,MOBO'
+    }
+};
+
+$(document).ready(function() {
+    ViafoService.Init();
+});
+
+$(document).on('pageinit', '#start', function () {
+	
+	function AskUserToConfirmCb(service, callback) {
+        if (confirm("You need to sign into " + service.display_name + " first, do it now?")) {
+            callback();
+        }
+    }
+    
+    function SuccessHandlerCb(data, result, xhr) {
+        $.mobile.hidePageLoadingMsg();
+        alert("Success");
+        console.log(data);
+    }
+    
+    function FailureHandlerCb(xhr, result, msg) {
+        $.mobile.hidePageLoadingMsg();
+        if (xhr.responseText) {
+            var data = $.parseJSON(xhr.responseText);
+            alert("Failure");
+        } else {
+            alert("Failed");
+        }
+    }
+	
+	// https://api.att.com/rest/sms/2/messaging/outbox
+
+	
+	$('#sms-form').submit(function () {
+		
+		var params = {
+	        'Address' : $('#address').val(),
+	        'Message' : $('#message').val(),
+	    };
+
+		ViafoService.CallProxy(
+			'att',
+			'api.att.com', 
+			'/rest/sms/2/messaging/outbox',
+			'post',
+			params,
+			SuccessHandlerCb,
+			FailureHandlerCb,
+			AskUserToConfirmCb
+		);
+		return false;
+	});
+	
+	
+    $('#mobo-form').submit(function () {
+        
+        var params = {
+            'Addresses' : $('#address2').val(),
+            'Text' :  $('#message2').val(),
+            'Subject' : 'Subject'
+        };
+
+        ViafoService.CallProxy(
+            'att',
+            'api.att.com', 
+            '/rest/1/MyMessages',
+            'post',
+            params,
+            SuccessHandlerCb,
+            FailureHandlerCb,
+            AskUserToConfirmCb
+        );
+        return false;
+    });
+});
+
+    </script>
+    </head>
+<body> 
+
+<div id="start" data-role="page">
+
+    <div data-role="header" data-position="fixed">
+        <h1>AT&amp;T SMS</h1>
+    </div><!-- /header -->
+    <div data-role="content">
+        <div>
+        	<h3>AT&amp;T SMS</h3>
+            <form id="sms-form">
+                <fieldset>
+                    <label for="address">Enter AT&amp;T number:</label>
+                    <input type="text" name="address" id="address" value="" placeholder="e.g.: tel:+12066176289"/>
+                </fieldset>
+                <fieldset>
+                    <label for="message">Message:</label>
+                    <textarea name="message" id="message" placeholder="e.g.: Hello!"></textarea>
+                </fieldset>
+                <button type="submit" data-theme="a" data-inline="true">Send SMS</button>
+            </form>
+        </div>
+
+        <div>
+            <h3>AT&amp;T Messaging-On-Behalf-Of</h3>
+            <form id="mobo-form">
+                <fieldset>
+                    <label for="address2">Enter destination number:</label>
+                    <input type="text" name="address2" id="address2" value="" placeholder="e.g.: tel:+12066176289"/>
+                </fieldset>
+                <fieldset>
+                    <label for="message2">Message:</label>
+                    <textarea name="message2" id="message2" placeholder="e.g.: Hello!"></textarea>
+                </fieldset>
+                <button type="submit" data-theme="a" data-inline="true">Send SMS from user's number</button>
+            </form>
+        </div>
+    </div><!-- /content -->
+
+</div><!-- /page -->
+
+</body>
+</html>
