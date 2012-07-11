@@ -30,7 +30,7 @@ var ViafoService = ViafoService || (function () {
             type : 'POST',
             url : VIAFO_SETTINGS.ENDPOINT + path,
             data : data,
-            dataType : 'json'
+            dataType : 'jsonp'
         })
         .done(eventNameToFunc(success_cb))
         .fail(eventNameToFunc(error_cb));
@@ -56,7 +56,7 @@ var ViafoService = ViafoService || (function () {
             type : 'POST',
             url : VIAFO_SETTINGS.ENDPOINT + 'proxy/' + service_name + '/' + domain + '/' + method + '.json',
             data : params,
-            dataType : 'json'
+            dataType : 'jsonp'
         })
         .done(eventNameToFunc(success_cb))
         .fail(eventNameToFunc(error_cb));
