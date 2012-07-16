@@ -6,3 +6,9 @@ example/twitter_no_viafo.html - this is a simple twitter search app with no Viaf
 
 examples/twitter_with_viafo.html - this is the same twitter search app, with limited twitter functionality added. Note for this app, we're assuming that Twitter is always available.
 
+examples/att_location.html - demos the AT&T Platform API for terminal location, via our proxy interface.
+
+examples/att_sms.html - demos the AT&T Platform API for SMS, via our proxy interface.
+
+examples/checkin.html - demos location check-in at the Space Needle in Seattle. Works for both Foursquare and Facebook. 
+
