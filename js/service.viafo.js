@@ -2,6 +2,70 @@
 /*global VIAFO_SETTINGS, $, window, document, alert, console, localStorage, urlhandler */
 
 
+// ViafoService wraps the Viafo Service Gateway API and provides
+// helper functions.
+
+// It expects you have a VIAFO_SETTINGS object defined
+//
+// The VIAFO_SETTINGS must contain:
+// ENDPOINT: URL for the Viafo Service Gateway (usually 'https://vsg-live.appspot.com/client/1/')
+// CLIENT_ID : your app's client id from the dev.viafo.com site
+// CLIENT_SECRET : your app's client secret from the dev.viafo.com site
+//
+// You may also specify these optional parameters:
+// SCOPES: a dictionary specifying the authentication scopes for your app (if you want to override the defaults)
+//         the key being the service id
+//         e.g.:
+//              'SCOPES' : {
+//                   'facebook' : 'offline_access,publish_checkins'
+//              }
+// GetAccessToken:  a function that is used to retrieve your user's access token. By default
+//                  we use the localStorage HTML5 API for you
+// SetAccessToken:  a function to store your user's access token. By default we use the 
+//                  localStorage HTML5 API
+// GetReturnUrl:    a function that returns the return URL you wish to use when authenticating
+//                  against services. By default we use your window.location. You'll want to 
+//                  override this if you're using PhoneGap.
+// GetUUID :        a function that returns a unique ID for your user. By default it creates a GUID
+//                  If you use PhoneGap, you can override this with device.uuid
+// OpenBrowserWindow: Function called in the authentication step to send the user to the auth pages. 
+//                  Override this when using PhoneGap
+
+// Using ViafoService API with PhoneGap / Cordova :
+// The basic technique is:
+// 1: Wait for Cordova's 'deviceready' event
+// 2: Override the VIAFO_SETTINGS functions for GetUUID, OpenBrowserWinow and GetReturnUrl
+// 3: Call ViafoService.Init()
+//
+// Note you must edit your PhoneGap native app to handle the URL returned by GetReturnUrl.
+//
+// For example:
+//
+//        // Cordova is ready
+//        //
+//        function onDeviceReady() {
+//                  
+//            VIAFO_SETTINGS.GetReturnUrl = function () {
+//                return 'myapp://app';
+//            };
+//           
+//            VIAFO_SETTINGS.OpenBrowserWindow = function (url) {
+//                navigator.app.loadUrl(url);
+//            }
+//            
+//            VIAFO_SETTINGS.GetUUID = function () {
+//                return device.uuid;
+//            }
+//            
+//            $(document).ready(function () {
+//                ViafoService.Init();
+//            });
+//        }
+//         
+//        document.addEventListener("deviceready", onDeviceReady, false);
+   
+
+// See the functions in the 'me' object for the API it provides
 var ViafoService = ViafoService || (function () {
     "use strict";
     
@@ -11,6 +75,8 @@ var ViafoService = ViafoService || (function () {
     
     // PRIVATE FUNCTIONS
     
+    // Note this function allows you to pass event names instead of functions
+    // to any of the APIs
     function eventNameToFunc(callback) {
         var f = function () {};
         if (callback) {
@@ -25,6 +91,9 @@ var ViafoService = ViafoService || (function () {
         return f;
     }
     
+    // This calls the Viafo Service Gateway's API
+    // Note: you can change dataType to 'json' if you
+    // are only supporting Android and/or iOS
     function doCall(path, data, success_cb, error_cb) {
         $.ajax({
             type : 'POST',
@@ -47,6 +116,9 @@ var ViafoService = ViafoService || (function () {
             error_cb);
     }
     
+    // This calls the Viafo Service Gateway's proxy API
+    // Note: you can change dataType to 'json' if you
+    // are only supporting Android and/or iOS
     function callProxy_i(service_name, domain, path, method, params, success_cb, error_cb) {
         params = params || {};
         params.access_token = VIAFO_ACCESS_TOKEN;
@@ -68,7 +140,6 @@ var ViafoService = ViafoService || (function () {
         alert(msg);
     }
     
-    
     // VIAFO SERVICE OBJECT
 
     me = {
@@ -81,6 +152,8 @@ var ViafoService = ViafoService || (function () {
         // Number of times retries we've had (fails after 3)
         RETRY_COUNT : 0,
         
+        // This initializes the service - you must call this once before you use the ViafoService object
+        // It calls the Register and/or GetServices API for you.                 
         Init : function (success_cb, error_cb) {
             
             // Helper functions for the register code
@@ -159,10 +232,12 @@ var ViafoService = ViafoService || (function () {
             }
         },
         
+        // Returns your user's access-token, if you need to call the API directly yourself
         GetAccessToken : function () {
             return VIAFO_ACCESS_TOKEN;  
         },
         
+        // Calls the Register API - for a new user
         CallRegister : function (success_cb, error_cb) {
             var data = {
                 'uuid' : VIAFO_SETTINGS.GetUUID(),
@@ -181,6 +256,7 @@ var ViafoService = ViafoService || (function () {
                 error_cb);
         },
         
+        // Calls the Get Services API for you.
         CallGetServices : function (success_cb, error_cb) {
             var retUrl = VIAFO_SETTINGS.GetReturnUrl(),
                 data = {
@@ -238,6 +314,7 @@ var ViafoService = ViafoService || (function () {
                 });
         },
         
+        // Returns an object describing a service
         GetService: function (service_name) {
             var i, s, service = null;
             
@@ -253,6 +330,7 @@ var ViafoService = ViafoService || (function () {
             return service;  
         },
         
+        // Returns all the services that implemented a specific verb
         GetServicesByVerb: function (verb) {
             var i, s, services = [];
             
@@ -267,6 +345,7 @@ var ViafoService = ViafoService || (function () {
             return services;
         },
         
+        // Checks to see if the user is authenticated for the service
         CheckForAuth : function (service_name, success_cb, error_cb, askUserForAuth_cb) {
             
             service_name = service_name.toLowerCase();
@@ -305,6 +384,7 @@ var ViafoService = ViafoService || (function () {
 			}
         },
         
+        // Calls the authentication API
         Authenticate : function (service_name, signIn, success_cb, error_cb, askUserForAuth_cb) {
             
             if (me.VIAFO_SERVICES_REFRESH) {
@@ -357,6 +437,7 @@ var ViafoService = ViafoService || (function () {
             }
         },
         
+        // Generic Function to call the Viafo Service Gateway API
         CallAction : function (service_name, verb, data, success_cb, error_cb, askUserForAuth_cb) {
             me.CheckForAuth(service_name, function () {
                 callAction_i(service_name, verb, data, success_cb, error_cb);
@@ -365,6 +446,7 @@ var ViafoService = ViafoService || (function () {
             askUserForAuth_cb);
         },
         
+        //  Function to call the Viafo Service Gateway API Proxy
         CallProxy : function (service_name, domain, path, method, params, success_cb, error_cb, askUserForAuth_cb) {
             me.CheckForAuth(service_name, function () {
                 callProxy_i(service_name, domain, path, method, params, success_cb, error_cb);

@@ -26,10 +26,13 @@ var VIAFO_SETTINGS = {
     }
 };
 
+
+// Initialize the Viafo Service when the DOM is ready. 
 $(document).ready(function() {
     ViafoService.Init();
 });
 
+// Wait for a response about the available services back from Viafo
 $(document).on('com.viafo.got_services', function () {
 	
 	// For this demo, we're using hard-coded lat/lng:
@@ -45,6 +48,7 @@ $(document).on('com.viafo.got_services', function () {
         	'facebook' : '88603851976'
         };
 	
+	// Helper functions to show some UI
 	function AskUserToConfirmCb(service, callback) {
         if (confirm("You need to sign into " + service.display_name + " first, do it now?")) {
             callback();

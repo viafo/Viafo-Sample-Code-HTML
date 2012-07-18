@@ -1,6 +1,8 @@
 /*jslint white: true, maxerr: 50, indent: 4 */
 /*global $ */
 
+// This is a simple helper class to call the Twitter Search API
+
 var TwitterService = TwitterService || (function () {
     var me,
         WEB_SERVICE = "http://search.twitter.com/search.json";

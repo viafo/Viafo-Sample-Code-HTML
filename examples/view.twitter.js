@@ -3,6 +3,8 @@
 // Using a global variable to share twitter results for now
 var SEARCH_RESULT = null;
 
+// This handles the twitter search and displays the list of tweets
+
 $(document).on('pageinit', '#start', function (event) {
     
     $('#search-form').submit(function () {

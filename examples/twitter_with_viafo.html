@@ -1,5 +1,10 @@
 <!DOCTYPE html> 
 <html> 
+    <!--
+       This HTML file expands on twitter_no_viafo.html 
+       by adding interactive functionality with Viafo
+    -->
+    
     <head> 
     <title>Twitter Search</title> 
     <meta name="viewport" content="width=device-width, initial-scale=1"> 
@@ -50,8 +55,14 @@ $(document).ready(function() {
     ViafoService.Init();
 });
 
+
+//
+// The UI Helpers are required to show UI to the user
+//
 var UiHelpers = UiHelpers || {
     
+    // This is used if the user has not authenticated
+    // against a service
     AskUserToConfirmCb: function (service, callback) {
         if (confirm("You need to sign into " + service.display_name + " first, do it now?")) {
             callback();
@@ -75,12 +86,14 @@ var UiHelpers = UiHelpers || {
 };
 
 $(document).on('pageinit', '#tweet', function () {
-       
+    
+    // Reply handler
     $('#reply').on('click', function (event) {
         var $form,
             data = $('#options').data();
             
         if (data) {
+            // Pre-populate the compose form
             $form = $('#compose-form');
             $form.find('input[name=service_name]').val('twitter');
             $form.find('input[name=action]').val('reply');
@@ -88,14 +101,18 @@ $(document).on('pageinit', '#tweet', function () {
             $form.find('textarea[name=text]').val('@' + data.from_user + ' ');
         }
         
+        // Allow the event to propogate - this makes the compose page show
         return true;
     });
     
+    // Retweet handler
     $('#retweet').on('click', function (event) {
         var data = $('#options').data();
         if (data) {
             $.mobile.showPageLoadingMsg("b", "Retweeting...");
             
+            // Call the Retweet helper API
+            // Note: use data.id_str not data.id
             ViafoService.CallTwitterRetweet(data.id_str,
                 UiHelpers.SuccessHandlerCb,
                 UiHelpers.FailureHandlerCb,
@@ -103,13 +120,16 @@ $(document).on('pageinit', '#tweet', function () {
         }
         event.stopPropagation();
         return false;
-    });                    
-    
+    });    
+                    
+    // Follow handler
     $('#follow').on('click', function (event) {
         var data = $('#options').data();
         if (data) {
             $.mobile.showPageLoadingMsg("b", "Following...");
             
+            // Call the Retweet helper API
+            // Note: use data.id_str not data.id
             ViafoService.CallTwitterFollow(data.from_user,
                 UiHelpers.SuccessHandlerCb,
                 UiHelpers.FailureHandlerCb,
@@ -123,6 +143,7 @@ $(document).on('pageinit', '#tweet', function () {
 
 $(document).on('pageinit', '#compose', function () {
     
+    // Helper function to reset the form
     function ResetForm() {
         var $form = $('#compose-form');
         $form.find('input[name=service_name]').val('twitter');
@@ -131,6 +152,7 @@ $(document).on('pageinit', '#compose', function () {
         $form.find('textarea[name=text]').val('');
     }
     
+    // Handle compose submit click
     $('#compose-form').submit(function () {
         var params = {}, 
             service_name = $(this).find('input[name=service_name]').val(),
@@ -146,6 +168,10 @@ $(document).on('pageinit', '#compose', function () {
         }
         
         $.mobile.showPageLoadingMsg("b", "Posting...");
+        
+        // Call the Viafo API
+        // Note that we use the hidden form item action to define
+        // what call we're making (e.g. share, reply)'
         ViafoService.CallAction(service_name, action, params, 
             function (data, result, xhr) {
                 UiHelpers.SuccessHandlerCb(data, result, xhr);

@@ -28,12 +28,14 @@ var VIAFO_SETTINGS = {
     }
 };
 
+// Initialize the Viafo Service when the DOM is ready.
 $(document).ready(function() {
     ViafoService.Init();
 });
 
 $(document).on('pageinit', '#start', function () {
-	
+    
+    // Helper functions to show some UI
 	function AskUserToConfirmCb(service, callback) {
         if (confirm("You need to sign into " + service.display_name + " first, do it now?")) {
             callback();
@@ -57,10 +59,8 @@ $(document).on('pageinit', '#start', function () {
             alert("Failed");
         }
     }
-	
-	// https://api.att.com/rest/sms/2/messaging/outbox
 
-	
+	// Capture submit button click
 	$('#sms-form').submit(function () {
 		
 		var params = {
@@ -68,12 +68,16 @@ $(document).on('pageinit', '#start', function () {
 	        'Message' : $('#message').val(),
 	    };
 
+        // AT&T Platform SMS endpoint is: https://api.att.com/rest/sms/2/messaging/outbox
+        // 
+        // This sends SMS from your shortcode to the number supplied (must be an AT&T number)
+        //
 		ViafoService.CallProxy(
-			'att',
-			'api.att.com', 
-			'/rest/sms/2/messaging/outbox',
-			'post',
-			params,
+			'att',                  // att - use AT&T authentication 
+			'api.att.com',          // the domain for the endpoint
+			'/rest/sms/2/messaging/outbox', // the path for the endpoint
+			'post',                 // HTTP method is POST
+			params,                 // request parameters
 			SuccessHandlerCb,
 			FailureHandlerCb,
 			AskUserToConfirmCb
@@ -81,7 +85,7 @@ $(document).on('pageinit', '#start', function () {
 		return false;
 	});
 	
-	
+	// Capture submit button click
     $('#mobo-form').submit(function () {
         
         var params = {
@@ -89,7 +93,11 @@ $(document).on('pageinit', '#start', function () {
             'Text' :  $('#message2').val(),
             'Subject' : 'Subject'
         };
-
+        
+        // AT&T Platform SMS endpoint is: https://api.att.com/rest/1/MyMessages'
+        // 
+        // This sends SMS from the users' account (must be a AT&T user) to the number supplied (an US network)
+        //
         ViafoService.CallProxy(
             'att',
             'api.att.com', 
