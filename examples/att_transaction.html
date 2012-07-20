@@ -1,0 +1,82 @@
+<!DOCTYPE html> 
+<html> 
+    <head> 
+    <title>AT&amp;T Location Example</title> 
+    <meta name="viewport" content="width=device-width, initial-scale=1"> 
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
+    <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+    <script src="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.js"></script>
+    
+    <script src="../js/service.viafo.js"></script>
+    <script>
+/*global $, ViafoService, confirm */
+
+//
+// Change these values to match your Viafo settings
+//
+var VIAFO_SETTINGS = { 
+    'ENDPOINT' : 'https://vsg-live.appspot.com/client/1/',
+
+
+    'CLIENT_ID' : '9RSbot4xBsPLh83p0lYhMQemK51QVcLx', 
+    'CLIENT_SECRET' : 'BYXbkPGgKdZsO1YfVQ6BsuBnPyFE9mIh',
+    
+    // Define a custom scope
+    'SCOPES' : {
+       // AT&T scopes: SMS, MMS, and "Messaging On Behalf Of"
+       'att' : 'TL,SMS,MMS,MOBO'
+    }
+};
+
+// Initialize the Viafo Service when the DOM is ready. 
+$(document).ready(function() {
+    ViafoService.Init();
+});
+
+$(document).on('pageinit', '#start', function () {
+    
+	// Capture submit button click
+	$('#transaction-form').submit(function () {
+		
+        $.mobile.showPageLoadingMsg();
+
+        // NB: you may specify a return_url here
+        var my_transaction_name = 'tx_01';
+        
+        VIAFO_SETTINGS.OpenBrowserWindow(
+        	'https://vsg-live.appspot.com/carrier/1/att/payment/' +
+        	my_transaction_name +
+        	'/new.html?access_token=' + ViafoService.GetAccessToken());
+        
+        return false;
+	});
+	
+});
+
+    </script>
+    </head>
+<body> 
+
+<div id="start" data-role="page">
+
+    <div data-role="header" data-position="fixed">
+        <h1>AT&amp;T Payment</h1>
+    </div><!-- /header -->
+    <div data-role="content">
+        <div>
+        	<h3>AT&amp;T Payment</h3>
+        	<p>Press purchase to trigger transaction "tx_01". NB: You need to set this up in the Viafo
+        		Developer site.</p>
+            <form id="transaction-form" action="#" method="GET">
+                <button type="submit" data-theme="a" data-inline="true">Purchase</button>
+            </form>
+        </div>
+
+        <div id="response">
+        </div>
+    </div><!-- /content -->
+
+</div><!-- /page -->
+
+</body>
+</html>
