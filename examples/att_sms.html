@@ -84,32 +84,6 @@ $(document).on('pageinit', '#start', function () {
 		);
 		return false;
 	});
-	
-	// Capture submit button click
-    $('#mobo-form').submit(function () {
-        
-        var params = {
-            'Addresses' : $('#address2').val(),
-            'Text' :  $('#message2').val(),
-            'Subject' : 'Subject'
-        };
-        
-        // AT&T Platform SMS endpoint is: https://api.att.com/rest/1/MyMessages'
-        // 
-        // This sends SMS from the users' account (must be a AT&T user) to the number supplied (an US network)
-        //
-        ViafoService.CallProxy(
-            'att',
-            'api.att.com', 
-            '/rest/1/MyMessages',
-            'post',
-            params,
-            SuccessHandlerCb,
-            FailureHandlerCb,
-            AskUserToConfirmCb
-        );
-        return false;
-    });
 });
 
     </script>
@@ -137,20 +111,6 @@ $(document).on('pageinit', '#start', function () {
             </form>
         </div>
 
-        <div>
-            <h3>AT&amp;T Messaging-On-Behalf-Of</h3>
-            <form id="mobo-form">
-                <fieldset>
-                    <label for="address2">Enter destination number:</label>
-                    <input type="text" name="address2" id="address2" value="" placeholder="e.g.: tel:+12066176289"/>
-                </fieldset>
-                <fieldset>
-                    <label for="message2">Message:</label>
-                    <textarea name="message2" id="message2" placeholder="e.g.: Hello!"></textarea>
-                </fieldset>
-                <button type="submit" data-theme="a" data-inline="true">Send SMS from user's number</button>
-            </form>
-        </div>
         <div id="response"></div>
     </div><!-- /content -->
 
