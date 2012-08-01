@@ -1,7 +1,7 @@
 <!DOCTYPE html> 
 <html> 
     <head> 
-    <title>AT&amp;T SMS Example</title> 
+    <title>AT&amp;T Speech Example</title> 
     <meta name="viewport" content="width=device-width, initial-scale=1"> 
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.1/jquery.mobile-1.1.1.min.css" />
     <script src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
@@ -20,6 +20,13 @@ var VIAFO_SETTINGS = {
     'CLIENT_ID' : '9RSbot4xBsPLh83p0lYhMQemK51QVcLx', 
     'CLIENT_SECRET' : 'BYXbkPGgKdZsO1YfVQ6BsuBnPyFE9mIh',
 };
+
+var VIAFO_SETTINGS = {
+    'ENDPOINT' : 'http://localhost:8081/client/1/', 
+    
+    'CLIENT_ID' : 'olV590vhHyEqSFu96hZklpAQnVdDDsjy', 
+    'CLIENT_SECRET' : '7iMpQS1dwbpDja3oCsY5LoMDSKR5nDam',
+}
 
 // Initialize the Viafo Service when the DOM is ready.
 $(document).ready(function() {
@@ -54,11 +61,9 @@ $(document).on('pageinit', '#start', function () {
     }
 
 	// Capture submit button click
-	$('#sms-form').submit(function () {
+	$('#speech-form').submit(function () {
 		
 		var params = {
-	        'Address' : $('#address').val(),
-	        'Message' : $('#message').val()
 	    };
 
         // AT&T Platform SMS endpoint is: https://api.att.com/rest/sms/2/messaging/outbox
@@ -68,13 +73,13 @@ $(document).on('pageinit', '#start', function () {
 		ViafoService.CallProxy(
 			'att',                  // att - use AT&T authentication 
 			'api.att.com',          // the domain for the endpoint
-			'/rest/sms/2/messaging/outbox', // the path for the endpoint
+			'/rest/1/SpeechToText', // the path for the endpoint
 			'post',                 // HTTP method is POST
 			params,                 // request parameters
 			SuccessHandlerCb,
 			FailureHandlerCb,
 			AskUserToConfirmCb,
-			'SMS'                   // This indicates we're using client credentials, not user authentication
+			'SPEECH'                   // This indicates we're using client credentials, not user authentication (and specifies the scope to use)
 		);
 		return false;
 	});
@@ -91,15 +96,11 @@ $(document).on('pageinit', '#start', function () {
     </div><!-- /header -->
     <div data-role="content">
         <div>
-        	<h3>AT&amp;T SMS</h3>
-            <form id="sms-form">
+        	<h3>AT&amp;T Speech</h3>
+            <form id="speech-form" enctype="multipart/form-data">
                 <fieldset>
-                    <label for="address">Enter AT&amp;T number:</label>
-                    <input type="text" name="address" id="address" value="" placeholder="e.g.: tel:+12066176289"/>
-                </fieldset>
-                <fieldset>
-                    <label for="message">Message:</label>
-                    <textarea name="message" id="message" placeholder="e.g.: Hello!"></textarea>
+                    <label for="file">Audio file:</label>
+                    <input type="file" name="file" id="file" placeholder="e.g.: AMR or WAV"/>
                 </fieldset>
                 <button type="submit" data-theme="a" data-inline="true">Send SMS from shortcode</button>
             </form>

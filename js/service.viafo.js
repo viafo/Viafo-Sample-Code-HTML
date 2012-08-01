@@ -461,12 +461,21 @@ var ViafoService = ViafoService || (function () {
         },
         
         //  Function to call the Viafo Service Gateway API Proxy
-        CallProxy : function (service_name, domain, path, method, params, success_cb, error_cb, askUserForAuth_cb) {
-            me.CheckForAuth(service_name, function () {
+        CallProxy : function (service_name, domain, path, method, params, success_cb, error_cb, askUserForAuth_cb, auth_scope) {
+            if (auth_scope) {
+                params = params || {}
+                params['_auth'] = 'client_credentials'
+                if (auth_scope !== true) {
+                    params['_scope'] = auth_scope
+                }
                 callProxy_i(service_name, domain, path, method, params, success_cb, error_cb);
-            },
-            error_cb,
-            askUserForAuth_cb);
+            } else {
+                me.CheckForAuth(service_name, function () {
+                    callProxy_i(service_name, domain, path, method, params, success_cb, error_cb);
+                },
+                error_cb,
+                askUserForAuth_cb);
+            }
         },
         
         //

@@ -44,7 +44,7 @@ $(document).on('pageinit', '#start', function () {
         var my_transaction_name = 'tx_01';
         
         VIAFO_SETTINGS.OpenBrowserWindow(
-        	'https://vsg-live.appspot.com/carrier/1/att/payment/' +
+        	VIAFO_SETTINGS.ENDPOINT + '../../carrier/1/att/payment/' +
         	my_transaction_name +
         	'/new.html?access_token=' + ViafoService.GetAccessToken());
         
